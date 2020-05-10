@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, CardContent, CardActions, CssBaseline, Chip, Container, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles({
   card: {
@@ -14,9 +14,15 @@ const useStyles = makeStyles({
   }
 })
 
+const Category = withStyles({
+  root: {marginTop: 10, marginBottom: 10}
+})(Chip)
+
 function App() {
   const [jokes, setJokes] = useState([]);
   const [jokesToShow, setJokesToShow] = useState([])
+
+  const [likedJokes, setLikedJokes] = useState([])
 
   const classes = useStyles();
 
@@ -32,11 +38,14 @@ function App() {
   }, []);
 
   const likeJoke = (id) => {
-    console.log('liking joke ', id)
+    if (likedJokes.find(j => j.id === id)) return
+    const likedJoke = jokes.find(j => j.id === id)
+    setLikedJokes([likedJoke, ...likedJokes])
   }
 
   const unlikeJoke = (id) => {
-    console.log('unliking joke ', id)
+    const newLikedJokes = likedJokes.filter(j => j.id !== id)
+    setLikedJokes(newLikedJokes)
   }
 
   return (
@@ -51,9 +60,9 @@ function App() {
             <CardContent className={classes.cardContent}>
               {joke.categories.length > 0 ? (
                 joke.categories.map(cat => (
-                  <Chip label={cat} key={cat} variant="outlined" style={{marginTop: 10, marginBottom: 10}} />
+                  <Category label={cat} key={cat} variant="outlined" />
                 ))
-              ) : <Chip label="regular" variant="outlined" style={{marginTop: 10, marginBottom: 10}} />}
+              ) : <Category label="regular" variant="outlined" />}
               <Typography>{joke.joke}</Typography>
             </CardContent>
             <CardActions className={classes.cardActions}>
