@@ -25,7 +25,8 @@ function App() {
       .then(res => {
         console.log(res);
         setJokes(res.value);
-        setJokesToShow(res.value.slice(0, 10))
+        setJokesToShow(res.value.slice(0, 10));
+        observerElement()
       })
       .catch((err) => console.log(err))
   }, []);
@@ -45,6 +46,24 @@ function App() {
     setCurrentTab(value)
   }
 
+  const observerElement = (bottomJoke) => {
+    if(!bottomJoke) return
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting === true) {
+        console.log('reached bottom of card')
+      }
+    }, {
+      threshold: 1
+    })
+    
+    observer.observe(bottomJoke)
+  }
+
+  useEffect(() => {
+    const bottomJokeEl = document.getElementById(`joke-${jokesToShow.length - 1}`)
+    observerElement(bottomJokeEl)
+  }, [jokesToShow])
+
   return (
     <div className="App">
       <CssBaseline />
@@ -59,14 +78,15 @@ function App() {
           </Tabs>
         </AppBar>
         <div role="tabpanel" hidden={currentTab !== 0}>
-        {jokesToShow.map(joke => (
-          <JokeCard
-            key={joke.id}
-            joke={joke}
-            likeJoke={likeJoke}
-            unlikeJoke={unlikeJoke}
-          />
-        ))}
+          {jokesToShow.map((joke, index) => {
+            return (<JokeCard
+              key={joke.id}
+              joke={joke}
+              likeJoke={likeJoke}
+              unlikeJoke={unlikeJoke}
+              index={index}
+            />)
+          })}
         </div>
         <div role="tabpanel" hidden={currentTab !== 1}>
         {likedJokes.map(joke => (
