@@ -1,28 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, CardContent, CardActions, CssBaseline, Chip, Container, Typography } from '@material-ui/core';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { AppBar, CssBaseline, Container, Tab, Tabs, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+
+import JokeCard from './JokeCard'
 
 const useStyles = makeStyles({
-  card: {
-    marginBottom: 20
-  },
-  cardContent: {
-    paddingBottom: 5
-  },
-  cardActions: {
-    padding: 16
-  }
+  
 })
 
-const Category = withStyles({
-  root: {marginTop: 10, marginBottom: 10}
-})(Chip)
+
 
 function App() {
   const [jokes, setJokes] = useState([]);
   const [jokesToShow, setJokesToShow] = useState([])
 
   const [likedJokes, setLikedJokes] = useState([])
+  const [currentTab, setCurrentTab] = useState(0)
 
   const classes = useStyles();
 
@@ -48,6 +41,10 @@ function App() {
     setLikedJokes(newLikedJokes)
   }
 
+  const changeTab = (event, value) => {
+    setCurrentTab(value)
+  }
+
   return (
     <div className="App">
       <CssBaseline />
@@ -55,26 +52,32 @@ function App() {
         <Typography variant='h1' align='center'>
           Chuck Norris Jokes
         </Typography>
+        <AppBar style={{marginBottom: 20}} position="sticky">
+          <Tabs value={currentTab} onChange={changeTab} centered>
+            <Tab label="Home" id="home-tab" aria-controls="home-panel" />
+            <Tab label="Likes" id="like-tab" aria-controls="like-panel" />
+          </Tabs>
+        </AppBar>
+        <div role="tabpanel" hidden={currentTab !== 0}>
         {jokesToShow.map(joke => (
-          <Card key={joke.id} className={classes.card}>
-            <CardContent className={classes.cardContent}>
-              {joke.categories.length > 0 ? (
-                joke.categories.map(cat => (
-                  <Category label={cat} key={cat} variant="outlined" />
-                ))
-              ) : <Category label="regular" variant="outlined" />}
-              <Typography>{joke.joke}</Typography>
-            </CardContent>
-            <CardActions className={classes.cardActions}>
-              <Button variant='contained' color='primary' onClick={() => likeJoke(joke.id)}>
-                Like
-              </Button>
-              <Button variant='contained' color='default' onClick={() => unlikeJoke(joke.id)}>
-                Unlike
-              </Button>
-            </CardActions>
-          </Card>
+          <JokeCard
+            key={joke.id}
+            joke={joke}
+            likeJoke={likeJoke}
+            unlikeJoke={unlikeJoke}
+          />
         ))}
+        </div>
+        <div role="tabpanel" hidden={currentTab !== 1}>
+        {likedJokes.map(joke => (
+          <JokeCard
+            key={joke.id}
+            joke={joke}
+            likeJoke={likeJoke}
+            unlikeJoke={unlikeJoke}
+          />
+        ))}
+        </div>
       </Container>
     </div>
   );
